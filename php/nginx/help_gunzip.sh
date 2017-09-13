@@ -3,16 +3,25 @@ domain=$1
 source=$2
 target=$3
 date=$4
-#./help_gunzip.sh listen.iciba.com /mnt/nginxlog/nginx/ /home/chengxueming/temp_event $date
+depth=${5:-1}
+#./help_gunzip.sh listen.iciba.com /mnt/nginxlog/nginx/ /home/chengxueming/temp_event/ $date
 g_dest="${target}${domain}/"
 if [ ! -d "$g_dest" ]
     then
         mkdir "$g_dest"
 fi
-g_source="${source}${domain}"
-cd $g_dest
-source_file="${domain}_access.log-${date}"
-array=($(find ${g_source} -name "${source_file}*"))
+g_source="${source}${domain}/"
+i=0
+array=()
+while [ $i -lt ${depth} ]
+do
+    logdate=$(date -d "${date} -${i} day" +%Y%m%d)
+    echo ${logdate}
+    source_file="${domain}_access.log-${logdate}"
+    array2=($(find ${g_source} -name "${source_file}*"))
+    array=(${array[@]} ${array2[@]})
+    i=`expr $i + 1`
+done
 for i in "${array[@]}"
 do
     a=(${i//// })
